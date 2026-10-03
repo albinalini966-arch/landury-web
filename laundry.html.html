@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshWash Studio - Sistem Informasi Laundry Online</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN for Reports -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        softblue: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0a3854',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f9ff;
+        }
+        .bg-soft-gradient {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #bae6fd 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(8px);
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; }
+        }
+    </style>
+</head>
+<body class="bg-softblue-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b border-softblue-200 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Brand Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchRole('customer')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-softblue-600 to-softblue-400 text-white flex items-center justify-center shadow-md shadow-softblue-300/50">
+                        <i class="fa-solid font-bold fa-soap text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-xl tracking-tight text-softblue-900">LaundryKu<span class="text-softblue-500">.Studio</span></h1>
+                        <p class="text-[10px] text-softblue-600 font-medium tracking-wide">LAUNDRY & DRY CLEANING</p>
+                    </div>
+                </div>
+
+                <!-- Role Selector Dropdown / Nav -->
+                <div class="flex items-center space-x-2">
+                    <div class="bg-softblue-100 p-1 rounded-xl flex items-center border border-softblue-200">
+                        <button onclick="switchRole('customer')" id="role-btn-customer" class="role-tab text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 bg-white text-softblue-700 shadow-sm">
+                            <i class="fa-solid fa-user text-softblue-500"></i> Pelanggan
+                        </button>
+                        <button onclick="switchRole('courier')" id="role-btn-courier" class="role-tab text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-softblue-700">
+                            <i class="fa-solid fa-motorcycle text-softblue-500"></i> Kurir
+                        </button>
+                        <button onclick="switchRole('admin')" id="role-btn-admin" class="role-tab text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-softblue-700">
+                            <i class="fa-solid fa-user-shield text-softblue-500"></i> Admin
+                        </button>
+                        <button onclick="switchRole('owner')" id="role-btn-owner" class="role-tab text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-softblue-700">
+                            <i class="fa-solid fa-chart-line text-softblue-500"></i> Owner
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- CUSTOMER PORTAL -->
+        <section id="portal-customer" class="role-portal">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-softblue-600 via-softblue-500 to-sky-400 rounded-3xl p-6 sm:p-8 text-white shadow-lg shadow-softblue-200/60 mb-8 relative overflow-hidden">
+                <div class="absolute -right-8 -bottom-8 opacity-10 text-9xl">
+                    <i class="fa-solid fa-shirt"></i>
+                </div>
+                <div class="max-w-xl relative z-10">
+                    <span class="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full border border-white/30 backdrop-blur-sm mb-3 inline-block">
+                        <i class="fa-solid fa-sparkles mr-1"></i> Layanan Laundry Premium
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 mb-2">Pakaian Bersih, Harum & Bebas Repot!</h2>
+                    <p class="text-softblue-100 text-sm leading-relaxed mb-6">Pesan penjemputan sekarang, kami jemput, timbang, cuci, dan antar kembali tepat ke pintu rumah Anda.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#order-form" class="bg-white text-softblue-700 hover:bg-softblue-50 font-bold px-5 py-2.5 rounded-xl shadow-md transition text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i> Pesan Laundry Sekarang
+                        </a>
+                        <a href="#track-section" class="bg-softblue-700/40 hover:bg-softblue-700/60 text-white font-semibold px-5 py-2.5 rounded-xl transition text-sm backdrop-blur-sm border border-white/20 flex items-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass"></i> Cek Status Pesanan
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Form Buat Pesanan Baru -->
+                <div id="order-form" class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-softblue-100">
+                            <div>
+                                <h3 class="text-lg font-bold text-softblue-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-file-signature text-softblue-500"></i> Form Pemesanan Laundry
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Isi detail penjemputan pakaian Anda</p>
+                            </div>
+                            <span class="text-xs font-semibold bg-softblue-100 text-softblue-700 px-2.5 py-1 rounded-lg">Antar-Jemput Gratis</span>
+                        </div>
+
+                        <form id="customerOrderForm" onsubmit="submitCustomerOrder(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap *</label>
+                                    <input type="text" id="custName" required placeholder="Contoh: Budi Santoso" class="w-full bg-softblue-50/50 border border-softblue-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-softblue-400 focus:bg-white transition">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor WhatsApp *</label>
+                                    <input type="tel" id="custPhone" required placeholder="0812xxxxxxxx" class="w-full bg-softblue-50/50 border border-softblue-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-softblue-400 focus:bg-white transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Alamat Penjemputan *</label>
+                                <textarea id="custAddress" required rows="2" placeholder="Jl. Mawar No. 123, Kel. Suka Maju..." class="w-full bg-softblue-50/50 border border-softblue-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-softblue-400 focus:bg-white transition"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Paket Layanan *</label>
+                                    <select id="custService" onchange="calculateEstimate()" required class="w-full bg-softblue-50/50 border border-softblue-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-softblue-400 focus:bg-white transition">
+                                        <!-- Populated via JS -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Perkiraan Berat / Pcs</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="number" id="custEstimateQty" min="1" value="3" oninput="calculateEstimate()" class="w-full bg-softblue-50/50 border border-softblue-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-softblue-400 focus:bg-white transition">
+                                        <span id="unitLabel" class="text-xs font-semibold text-softblue-700 bg-softblue-100 px-3 py-2.5 rounded-xl border border-softblue-200">Kg</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
+                                <input type="text" id="custNotes" placeholder="Pakaian luntur pisahkan, jangan terlalu harum..." class="w-full bg-softblue-50/50 border border-softblue-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-softblue-400 focus:bg-white transition">
+                            </div>
+
+                            <!-- Estimasi ringkasan harga -->
+                            <div class="bg-gradient-to-r from-softblue-50 to-sky-50 border border-softblue-200 rounded-xl p-4 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-slate-500 font-medium">Estimasi Biaya Awal</span>
+                                    <div id="estTotalPrice" class="text-xl font-black text-softblue-700">Rp 0</div>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">*Total final dikonfirmasi setelah penimbangan kasir/admin.</p>
+                                </div>
+                                <button type="submit" class="bg-softblue-600 hover:bg-softblue-700 text-white font-bold px-6 py-3 rounded-xl shadow-md shadow-softblue-300 transition flex items-center gap-2 text-sm">
+                                    <i class="fa-solid fa-paper-plane"></i> Kirim Pesanan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info Layanan & Jam Operasional -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm">
+                        <h4 class="font-bold text-softblue-900 text-sm mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-softblue-500"></i> Layanan Populer FreshWash
+                        </h4>
+                        <div id="customerServiceList" class="space-y-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm">
+                        <h4 class="font-bold text-softblue-900 text-sm mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-clock text-softblue-500"></i> Jam Operasional & Layanan
+                        </h4>
+                        <ul class="text-xs text-slate-600 space-y-2">
+                            <li class="flex justify-between py-1 border-b border-softblue-100">
+                                <span>Senin - Sabtu</span>
+                                <span class="font-semibold text-softblue-800">07:00 - 20:00 WIB</span>
+                            </li>
+                            <li class="flex justify-between py-1 border-b border-softblue-100">
+                                <span>Minggu / Tanggal Merah</span>
+                                <span class="font-semibold text-softblue-800">08:00 - 17:00 WIB</span>
+                            </li>
+                            <li class="flex justify-between py-1">
+                                <span>Layanan Penjemputan</span>
+                                <span class="font-semibold text-softblue-600">Gratis Radius 5 Km</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Track Order & Riwayat -->
+            <div id="track-section" class="mt-10">
+                <div class="bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-softblue-100">
+                        <div>
+                            <h3 class="text-lg font-bold text-softblue-900 flex items-center gap-2">
+                                <i class="fa-solid fa-truck-fast text-softblue-500"></i> Lacak & Riwayat Pesanan Saya
+                            </h3>
+                            <p class="text-xs text-slate-500">Pantau proses pencucian pakaian Anda secara real-time</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="searchOrderInput" placeholder="Cari Kode Order / HP..." onkeyup="renderCustomerOrders()" class="bg-softblue-50 border border-softblue-200 rounded-xl px-3.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-softblue-400">
+                        </div>
+                    </div>
+
+                    <div id="customerOrdersContainer" class="space-y-4">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- COURIER PORTAL -->
+        <section id="portal-courier" class="role-portal hidden">
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-softblue-200 shadow-sm">
+                <div>
+                    <h2 class="text-xl font-extrabold text-softblue-900 flex items-center gap-2">
+                        <i class="fa-solid fa-motorcycle text-softblue-500"></i> Portal Kurir Penjemputan & Pengantaran
+                    </h2>
+                    <p class="text-xs text-slate-500">Kelola tugas jemput cucian baru dan antar cucian yang sudah selesai</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Mode Standby
+                    </span>
+                </div>
+            </div>
+
+            <!-- List Tugas Kurir -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Penjemputan Baru -->
+                <div class="bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-softblue-100">
+                        <h3 class="font-bold text-softblue-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-box-archive text-amber-500"></i> Tugas Penjemputan (Pickup)
+                        </h3>
+                        <span id="pickupBadgeCount" class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="courierPickupList" class="space-y-3">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Pengantaran Selesai -->
+                <div class="bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-softblue-100">
+                        <h3 class="font-bold text-softblue-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-house-chimney text-softblue-600"></i> Tugas Pengantaran (Delivery)
+                        </h3>
+                        <span id="deliveryBadgeCount" class="bg-softblue-100 text-softblue-800 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="courierDeliveryList" class="space-y-3">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADMIN PORTAL -->
+        <section id="portal-admin" class="role-portal hidden">
+            <!-- Login State Guard -->
+            <div id="adminLoginState" class="max-w-md mx-auto my-12 bg-white rounded-2xl p-8 border border-softblue-200 shadow-md">
+                <div class="text-center mb-6">
+                    <div class="w-14 h-14 bg-softblue-100 text-softblue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-softblue-900">Login Admin </h3>
+                    <p class="text-xs text-slate-500 mt-1">Gunakan akun admin untuk mengelola transaksi & laporan</p>
+                </div>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Username</label>
+                        <input type="text" id="adminUser" required value="admin" class="w-full bg-softblue-50 border border-softblue-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-softblue-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                        <input type="password" id="adminPass" required value="admin123" class="w-full bg-softblue-50 border border-softblue-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-softblue-400">
+                    </div>
+                    <button type="submit" class="w-full bg-softblue-600 hover:bg-softblue-700 text-white font-bold py-2.5 rounded-xl transition shadow-md shadow-softblue-200 text-sm">
+                        Masuk Admin
+                    </button>
+                </form>
+            </div>
+
+            <!-- Admin Dashboard Content (Hidden until logged in) -->
+            <div id="adminDashboard" class="hidden space-y-6">
+                <!-- Admin Sub Navigation & User Header -->
+                <div class="bg-white rounded-2xl p-4 border border-softblue-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <button onclick="switchAdminTab('orders')" id="admin-tab-orders" class="admin-tab-btn bg-softblue-600 text-white font-semibold text-xs px-4 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-cash-register mr-1"></i> Timbangan & Olah Pesanan
+                        </button>
+                        <button onclick="switchAdminTab('services')" id="admin-tab-services" class="admin-tab-btn bg-softblue-50 text-slate-600 hover:bg-softblue-100 font-semibold text-xs px-4 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-list mr-1"></i> Master Layanan
+                        </button>
+                        <button onclick="switchAdminTab('reports')" id="admin-tab-reports" class="admin-tab-btn bg-softblue-50 text-slate-600 hover:bg-softblue-100 font-semibold text-xs px-4 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-file-invoice-dollar mr-1"></i> Laporan Admin
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-semibold text-slate-600 bg-softblue-50 px-3 py-1.5 rounded-xl border border-softblue-100">
+                            <i class="fa-solid fa-circle-user text-softblue-500 mr-1"></i> Admin Kasir
+                        </span>
+                        <button onclick="handleAdminLogout()" class="text-xs text-red-600 font-semibold bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl transition">
+                            <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Tab 1: Orders & Weighing -->
+                <div id="admin-subtab-orders" class="admin-subtab space-y-6">
+                    <div class="bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                            <h3 class="text-lg font-bold text-softblue-900 flex items-center gap-2">
+                                <i class="fa-solid fa-boxes-packing text-softblue-500"></i> Kelola Transaksi & Timbangan
+                            </h3>
+                            <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <select id="adminStatusFilter" onchange="renderAdminOrders()" class="bg-softblue-50 border border-softblue-200 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none">
+                                    <option value="ALL">Semua Status</option>
+                                    <option value="Menunggu Pickup">Menunggu Pickup</option>
+                                    <option value="Proses Penimbangan">Proses Penimbangan</option>
+                                    <option value="Sedang Dicuci">Sedang Dicuci</option>
+                                    <option value="Selesai Cuci">Selesai Cuci</option>
+                                    <option value="Pengantaran">Pengantaran</option>
+                                    <option value="Selesai">Selesai</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-softblue-50 text-softblue-900 font-bold border-b border-softblue-200">
+                                    <tr>
+                                        <th class="p-3">Kode / Waktu</th>
+                                        <th class="p-3">Pelanggan</th>
+                                        <th class="p-3">Layanan</th>
+                                        <th class="p-3">Qty / Timbangan</th>
+                                        <th class="p-3">Total Biaya</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3 text-center">Aksi / Update</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminOrderTableBody" class="divide-y divide-softblue-100">
+                                    <!-- Populated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Tab 2: Master Layanan -->
+                <div id="admin-subtab-services" class="admin-subtab hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Form Tambah Layanan -->
+                        <div class="bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm">
+                            <h4 class="font-bold text-softblue-900 text-sm mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-square-plus text-softblue-500"></i> Tambah / Edit Layanan
+                            </h4>
+                            <form id="serviceForm" onsubmit="saveService(event)" class="space-y-3">
+                                <input type="hidden" id="serviceId">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Layanan</label>
+                                    <input type="text" id="serviceName" required placeholder="Contoh: Cuci Komplit Kilat" class="w-full bg-softblue-50 border border-softblue-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Harga per Unit (Rp)</label>
+                                    <input type="number" id="servicePrice" required placeholder="7000" class="w-full bg-softblue-50 border border-softblue-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Satuan</label>
+                                    <select id="serviceUnit" class="w-full bg-softblue-50 border border-softblue-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+                                        <option value="Kg">Kg (Timbangan)</option>
+                                        <option value="Pcs">Pcs (Satuan)</option>
+                                        <option value="Meter">Meter (Karpet/Sajadah)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Estimasi Durasi (Jam)</label>
+                                    <input type="number" id="serviceDuration" required placeholder="24" class="w-full bg-softblue-50 border border-softblue-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+                                </div>
+                                <button type="submit" class="w-full bg-softblue-600 hover:bg-softblue-700 text-white font-bold py-2 rounded-xl transition text-xs shadow-sm">
+                                    Simpan Layanan
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Daftar Layanan Admin -->
+                        <div class="md:col-span-2 bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm">
+                            <h4 class="font-bold text-softblue-900 text-sm mb-4">Daftar Master Layanan</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-softblue-50 text-softblue-900 font-bold border-b border-softblue-200">
+                                        <tr>
+                                            <th class="p-2.5">Nama Layanan</th>
+                                            <th class="p-2.5">Harga</th>
+                                            <th class="p-2.5">Satuan</th>
+                                            <th class="p-2.5">Durasi</th>
+                                            <th class="p-2.5 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adminServiceTableBody" class="divide-y divide-softblue-100">
+                                        <!-- Populated via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Tab 3: Reports (Laporan Admin) -->
+                <div id="admin-subtab-reports" class="admin-subtab hidden space-y-6">
+                    <div class="bg-white rounded-2xl p-6 border border-softblue-200 shadow-sm no-print">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-softblue-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-pie text-softblue-500"></i> Laporan Keuangan & Operasional
+                                </h3>
+                                <p class="text-xs text-slate-500">Ringkasan statistik transaksi laundry</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="window.print()" class="bg-softblue-600 hover:bg-softblue-700 text-white font-semibold text-xs px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-print"></i> Cetak Laporan
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Metrics Cards -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-softblue-50 border border-softblue-200 rounded-xl p-4">
+                                <span class="text-[11px] text-slate-500 font-medium">Total Pendapatan</span>
+                                <div id="reportTotalRevenue" class="text-lg font-extrabold text-softblue-800">Rp 0</div>
+                            </div>
+                            <div class="bg-softblue-50 border border-softblue-200 rounded-xl p-4">
+                                <span class="text-[11px] text-slate-500 font-medium">Total Transaksi</span>
+                                <div id="reportTotalCount" class="text-lg font-extrabold text-softblue-800">0 Pesanan</div>
+                            </div>
+                            <div class="bg-softblue-50 border border-softblue-200 rounded-xl p-4">
+                                <span class="text-[11px] text-slate-500 font-medium">Transaksi Selesai</span>
+                                <div id="reportCompletedCount" class="text-lg font-extrabold text-emerald-700">0 Selesai</div>
+                            </div>
+                            <div class="bg-softblue-50 border border-softblue-200 rounded-xl p-4">
+                                <span class="text-[11px] text-slate-500 font-medium">Dalam Proses</span>
+                                <div id="reportPendingCount" class="text-lg font-extrabold text-amber-700">0 Dalam Proses</div>
+                            </div>
+                        </div>
+
+                        <!-- Chart Container -->
+                        <div class="bg-softblue-50/50 p-4 rounded-xl border border-softblue-200">
+                            <h4 class="font-bold text-xs text-softblue-900 mb-3">Grafik Status Pesanan</h4>
+                            <div class="h-64 relative">
+                                <canvas id="reportChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Printable Invoice/Report Format -->
+                    <div class="bg-white p-6 rounded-2xl border border-softblue-200 shadow-sm print-only">
+                        <div class="text-center pb-4 mb-4 border-b border-slate-300">
+                            <h2 class="text-2xl font-bold text-slate-900">FRESHWASH STUDIO - LAPORAN LAUNDRY</h2>
+                            <p class="text-xs text-slate-600">Dokumen Rekapitulasi Transaksi Resmi</p>
+                        </div>
+                        <div id="printReportDetails" class="text-xs space-y-2 mb-4">
+                            <!-- Populated for printing -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- OWNER PORTAL -->
+        <section id="portal-owner" class="role-portal hidden space-y-6">
+            <div class="bg-gradient-to-r from-softblue-900 to-softblue-800 text-white rounded-2xl p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-extrabold flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-softblue-400"></i> Dashboard Eksekutif Owner
+                        </h2>
+                        <p class="text-xs text-softblue-200 mt-1">Ringkasan performa bisnis dan analisa pendapatan real-time</p>
+                    </div>
+                    <span class="bg-softblue-700/50 text-softblue-100 text-xs px-3 py-1.5 rounded-xl border border-softblue-600">
+                        Owner View
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-softblue-200 shadow-sm">
+                    <span class="text-xs text-slate-500 font-semibold">Omset Keseluruhan</span>
+                    <div id="ownerTotalRevenue" class="text-2xl font-black text-softblue-800 mt-1">Rp 0</div>
+                    <p class="text-[11px] text-emerald-600 font-medium mt-1"><i class="fa-solid fa-arrow-trend-up"></i> Data tersinkronisasi otomatis</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-softblue-200 shadow-sm">
+                    <span class="text-xs text-slate-500 font-semibold">Total Volume Cucian</span>
+                    <div id="ownerTotalWeight" class="text-2xl font-black text-softblue-800 mt-1">0 Kg</div>
+                    <p class="text-[11px] text-slate-400 mt-1">Kapasitas penanganan mesin</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-softblue-200 shadow-sm">
+                    <span class="text-xs text-slate-500 font-semibold">Pelanggan Aktif</span>
+                    <div id="ownerTotalClients" class="text-2xl font-black text-softblue-800 mt-1">0 Orang</div>
+                    <p class="text-[11px] text-slate-400 mt-1">Jumlah Pemesan Unik</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Input Timbangan Admin -->
+    <div id="weighModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl border border-softblue-200 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-softblue-100">
+                <h4 class="font-bold text-softblue-900 text-sm">Input Timbangan Akhir</h4>
+                <button onclick="closeWeighModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="weighOrderId">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Berat Timbangan Nyata (Kg / Pcs)</label>
+                <input type="number" step="0.1" id="realWeighInput" class="w-full bg-softblue-50 border border-softblue-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-softblue-400">
+            </div>
+            <button onclick="submitWeighing()" class="w-full bg-softblue-600 hover:bg-softblue-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                Konfirmasi Timbangan & Hitung Total
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-softblue-200 py-6 mt-12 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-xs text-slate-500">© 2026 FreshWash Studio - Sistem Informasi Laundry Online (Tema Biru Muda). All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Default Master Data Layanan
+        const DEFAULT_SERVICES = [
+            { id: 'S1', name: 'Cuci Komplit Reguler', price: 7000, unit: 'Kg', duration: 48 },
+            { id: 'S2', name: 'Cuci Komplit Kilat 1 Hari', price: 10000, unit: 'Kg', duration: 24 },
+            { id: 'S3', name: 'Cuci Lipat (Tanpa Setrika)', price: 5000, unit: 'Kg', duration: 24 },
+            { id: 'S4', name: 'Dry Cleaning Jas / Gaun', price: 25000, unit: 'Pcs', duration: 48 },
+            { id: 'S5', name: 'Cuci Karpet / Sajadah', price: 15000, unit: 'Meter', duration: 72 }
+        ];
+
+        // Sample initial orders
+        const DEFAULT_ORDERS = [
+            {
+                id: 'FW-8012',
+                customerName: 'Anisa Rahma',
+                phone: '08123456789',
+                address: 'Jl. Melati No. 45, Komplek Permai',
+                serviceId: 'S1',
+                serviceName: 'Cuci Komplit Reguler',
+                unitPrice: 7000,
+                unit: 'Kg',
+                quantity: 4.5,
+                totalPrice: 31500,
+                status: 'Selesai',
+                notes: 'Baju wangi lavender',
+                createdAt: '2026-10-01 09:30'
+            },
+            {
+                id: 'FW-8013',
+                customerName: 'Deni Setiawan',
+                phone: '08571234999',
+                address: 'Gedung Wisma Asri Lantai 3',
+                serviceId: 'S2',
+                serviceName: 'Cuci Komplit Kilat 1 Hari',
+                unitPrice: 10000,
+                unit: 'Kg',
+                quantity: 3.0,
+                totalPrice: 30000,
+                status: 'Sedang Dicuci',
+                notes: 'Pisahkan celana jeans',
+                createdAt: '2026-10-02 10:15'
+            }
+        ];
+
+        // State Management
+        let services = [];
+        let orders = [];
+        let isAdminLoggedIn = false;
+        let reportChartInstance = null;
+
+        // Initialize Application
+        window.onload = function() {
+            loadDataFromStorage();
+            renderServiceDropdown();
+            renderCustomerServicesList();
+            renderCustomerOrders();
+            renderCourierList();
+            renderAdminOrders();
+            renderAdminServices();
+            renderReports();
+            renderOwnerDashboard();
+        };
+
+        function loadDataFromStorage() {
+            const savedServices = localStorage.getItem('freshwash_services');
+            services = savedServices ? JSON.parse(savedServices) : DEFAULT_SERVICES;
+            if(!savedServices) localStorage.setItem('freshwash_services', JSON.stringify(services));
+
+            const savedOrders = localStorage.getItem('freshwash_orders');
+            orders = savedOrders ? JSON.parse(savedOrders) : DEFAULT_ORDERS;
+            if(!savedOrders) localStorage.setItem('freshwash_orders', JSON.stringify(orders));
+        }
+
+        function saveDataToStorage() {
+            localStorage.setItem('freshwash_services', JSON.stringify(services));
+            localStorage.setItem('freshwash_orders', JSON.stringify(orders));
+            // Trigger UI updates
+            renderCustomerOrders();
+            renderCourierList();
+            renderAdminOrders();
+            renderAdminServices();
+            renderReports();
+            renderOwnerDashboard();
+        }
+
+        function switchRole(role) {
+            document.querySelectorAll('.role-portal').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.role-tab').forEach(el => {
+                el.classList.remove('bg-white', 'text-softblue-700', 'shadow-sm');
+                el.classList.add('text-slate-600');
+            });
+
+            const activeTab = document.getElementById(`role-btn-${role}`);
+            if(activeTab) {
+                activeTab.classList.add('bg-white', 'text-softblue-700', 'shadow-sm');
+                activeTab.classList.remove('text-slate-600');
+            }
+
+            document.getElementById(`portal-${role}`).classList.remove('hidden');
+        }
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-subtab').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.admin-tab-btn').forEach(el => {
+                el.classList.remove('bg-softblue-600', 'text-white');
+                el.classList.add('bg-softblue-50', 'text-slate-600');
+            });
+
+            document.getElementById(`admin-subtab-${tab}`).classList.remove('hidden');
+            const btn = document.getElementById(`admin-tab-${tab}`);
+            if(btn) {
+                btn.classList.add('bg-softblue-600', 'text-white');
+                btn.classList.remove('bg-softblue-50', 'text-slate-600');
+            }
+
+            if(tab === 'reports') {
+                setTimeout(renderReportsChart, 100);
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `p-3.5 rounded-xl shadow-lg text-xs font-semibold text-white flex items-center gap-2 transform transition-all duration-300 pointer-events-auto ${
+                type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-red-600' : 'bg-softblue-600'
+            }`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function renderServiceDropdown() {
+            const select = document.getElementById('custService');
+            select.innerHTML = services.map(s => 
+                `<option value="${s.id}">${s.name} - Rp ${s.price.toLocaleString('id-ID')} / ${s.unit}</option>`
+            ).join('');
+            calculateEstimate();
+        }
+
+        function renderCustomerServicesList() {
+            const list = document.getElementById('customerServiceList');
+            list.innerHTML = services.map(s => `
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-softblue-50 border border-softblue-100">
+                    <div>
+                        <p class="text-xs font-bold text-softblue-900">${s.name}</p>
+                        <p class="text-[10px] text-slate-500">Proses: ~${s.duration} Jam</p>
+                    </div>
+                    <span class="text-xs font-extrabold text-softblue-700 bg-white px-2.5 py-1 rounded-lg border border-softblue-200">
+                        Rp ${s.price.toLocaleString('id-ID')}/${s.unit}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function calculateEstimate() {
+            const serviceId = document.getElementById('custService').value;
+            const qty = parseFloat(document.getElementById('custEstimateQty').value) || 0;
+            const service = services.find(s => s.id === serviceId);
+
+            if(service) {
+                document.getElementById('unitLabel').innerText = service.unit;
+                const total = service.price * qty;
+                document.getElementById('estTotalPrice').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+            }
+        }
+
+        function submitCustomerOrder(e) {
+            e.preventDefault();
+            const serviceId = document.getElementById('custService').value;
+            const service = services.find(s => s.id === serviceId);
+
+            const newOrder = {
+                id: 'FW-' + Math.floor(1000 + Math.random() * 9000),
+                customerName: document.getElementById('custName').value,
+                phone: document.getElementById('custPhone').value,
+                address: document.getElementById('custAddress').value,
+                serviceId: service.id,
+                serviceName: service.name,
+                unitPrice: service.price,
+                unit: service.unit,
+                quantity: parseFloat(document.getElementById('custEstimateQty').value) || 1,
+                totalPrice: service.price * (parseFloat(document.getElementById('custEstimateQty').value) || 1),
+                status: 'Menunggu Pickup',
+                notes: document.getElementById('custNotes').value || '-',
+                createdAt: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+            };
+
+            orders.unshift(newOrder);
+            saveDataToStorage();
+            document.getElementById('customerOrderForm').reset();
+            calculateEstimate();
+            showToast(`Pesanan ${newOrder.id} Berhasil Ditambahkan!`, 'success');
+        }
+
+        function renderCustomerOrders() {
+            const container = document.getElementById('customerOrdersContainer');
+            const search = document.getElementById('searchOrderInput').value.toLowerCase();
+
+            const filtered = orders.filter(o => 
+                o.id.toLowerCase().includes(search) || 
+                o.customerName.toLowerCase().includes(search) ||
+                o.phone.includes(search)
+            );
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Tidak ada pesanan ditemukan.</p>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(order => {
+                const steps = ['Menunggu Pickup', 'Proses Penimbangan', 'Sedang Dicuci', 'Selesai Cuci', 'Pengantaran', 'Selesai'];
+                const currentIdx = steps.indexOf(order.status);
+
+                return `
+                    <div class="border border-softblue-200 rounded-2xl p-4 bg-softblue-50/30 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-softblue-100">
+                            <div>
+                                <span class="text-xs font-black text-softblue-800">${order.id}</span>
+                                <span class="text-[11px] text-slate-500 ml-2">${order.createdAt}</span>
+                            </div>
+                            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${getStatusBadgeClass(order.status)}">
+                                ${order.status}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                            <div>
+                                <span class="text-[10px] text-slate-400 block">Pemesan</span>
+                                <span class="font-semibold text-slate-800">${order.customerName}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 block">Layanan</span>
+                                <span class="font-semibold text-slate-800">${order.serviceName}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 block">Berat / Qty</span>
+                                <span class="font-semibold text-slate-800">${order.quantity} ${order.unit}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 block">Total Biaya</span>
+                                <span class="font-bold text-softblue-700">Rp ${order.totalPrice.toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>
+
+                        <!-- Stepper Progress Bar -->
+                        <div class="pt-2">
+                            <div class="flex items-center justify-between text-[10px] font-semibold text-slate-400 mb-1">
+                                <span class="${currentIdx >= 0 ? 'text-softblue-600' : ''}">Pickup</span>
+                                <span class="${currentIdx >= 1 ? 'text-softblue-600' : ''}">Timbang</span>
+                                <span class="${currentIdx >= 2 ? 'text-softblue-600' : ''}">Cuci</span>
+                                <span class="${currentIdx >= 4 ? 'text-softblue-600' : ''}">Antar</span>
+                                <span class="${currentIdx >= 5 ? 'text-emerald-600' : ''}">Selesai</span>
+                            </div>
+                            <div class="w-full bg-softblue-100 rounded-full h-2 overflow-hidden flex">
+                                <div class="bg-softblue-500 h-2 transition-all duration-500" style="width: ${((currentIdx + 1) / steps.length) * 100}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCourierList() {
+            const pickupList = document.getElementById('courierPickupList');
+            const deliveryList = document.getElementById('courierDeliveryList');
+
+            const pickups = orders.filter(o => o.status === 'Menunggu Pickup');
+            const deliveries = orders.filter(o => o.status === 'Pengantaran' || o.status === 'Selesai Cuci');
+
+            document.getElementById('pickupBadgeCount').innerText = pickups.length;
+            document.getElementById('deliveryBadgeCount').innerText = deliveries.length;
+
+            pickupList.innerHTML = pickups.length ? pickups.map(o => `
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-amber-900">${o.id} - ${o.customerName}</span>
+                        <span class="text-[10px] bg-amber-200 text-amber-800 px-2 py-0.5 rounded-md font-semibold">Jemput</span>
+                    </div>
+                    <p class="text-xs text-slate-600"><i class="fa-solid fa-location-dot text-amber-600 mr-1"></i> ${o.address}</p>
+                    <button onclick="updateOrderStatus('${o.id}', 'Proses Penimbangan')" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-1.5 rounded-lg transition">
+                        Ambil Cucian (Proses Timbang)
+                    </button>
+                </div>
+            `).join('') : `<p class="text-xs text-slate-400 text-center py-4">Tidak ada tugas penjemputan.</p>`;
+
+            deliveryList.innerHTML = deliveries.length ? deliveries.map(o => `
+                <div class="p-3 bg-softblue-50 border border-softblue-200 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-softblue-900">${o.id} - ${o.customerName}</span>
+                        <span class="text-[10px] bg-softblue-200 text-softblue-800 px-2 py-0.5 rounded-md font-semibold">${o.status}</span>
+                    </div>
+                    <p class="text-xs text-slate-600"><i class="fa-solid fa-house text-softblue-600 mr-1"></i> ${o.address}</p>
+                    ${o.status === 'Selesai Cuci' ? `
+                        <button onclick="updateOrderStatus('${o.id}', 'Pengantaran')" class="w-full bg-softblue-600 hover:bg-softblue-700 text-white text-xs font-bold py-1.5 rounded-lg transition">
+                            Mulai Antar Cucian
+                        </button>
+                    ` : `
+                        <button onclick="updateOrderStatus('${o.id}', 'Selesai')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 rounded-lg transition">
+                            Konfirmasi Terkirim / Selesai
+                        </button>
+                    `}
+                </div>
+            `).join('') : `<p class="text-xs text-slate-400 text-center py-4">Tidak ada tugas pengantaran.</p>`;
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('adminUser').value;
+            const p = document.getElementById('adminPass').value;
+
+            if(u === 'admin' && p === 'admin123') {
+                isAdminLoggedIn = true;
+                document.getElementById('adminLoginState').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                showToast('Login Admin Berhasil!', 'success');
+            } else {
+                showToast('Username / Password Admin Salah', 'error');
+            }
+        }
+
+        function handleAdminLogout() {
+            isAdminLoggedIn = false;
+            document.getElementById('adminLoginState').classList.remove('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+        }
+
+        function renderAdminOrders() {
+            const tbody = document.getElementById('adminOrderTableBody');
+            const filter = document.getElementById('adminStatusFilter').value;
+
+            const filtered = filter === 'ALL' ? orders : orders.filter(o => o.status === filter);
+
+            tbody.innerHTML = filtered.map(o => `
+                <tr class="hover:bg-softblue-50/50 transition">
+                    <td class="p-3">
+                        <span class="font-bold text-softblue-900 block">${o.id}</span>
+                        <span class="text-[10px] text-slate-400">${o.createdAt}</span>
+                    </td>
+                    <td class="p-3">
+                        <span class="font-semibold block text-slate-800">${o.customerName}</span>
+                        <span class="text-[10px] text-slate-500">${o.phone}</span>
+                    </td>
+                    <td class="p-3 font-medium text-slate-700">${o.serviceName}</td>
+                    <td class="p-3">
+                        <span class="font-bold text-slate-800">${o.quantity} ${o.unit}</span>
+                        <button onclick="openWeighModal('${o.id}', ${o.quantity})" class="ml-1.5 text-[10px] text-softblue-600 hover:underline font-semibold">
+                            <i class="fa-solid fa-pen-to-square"></i> Ubah
+                        </button>
+                    </td>
+                    <td class="p-3 font-black text-softblue-700">Rp ${o.totalPrice.toLocaleString('id-ID')}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadgeClass(o.status)}">
+                            ${o.status}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-white border border-softblue-200 rounded-lg px-2 py-1 text-[11px] font-medium focus:outline-none">
+                            <option value="Menunggu Pickup" ${o.status === 'Menunggu Pickup' ? 'selected' : ''}>Menunggu Pickup</option>
+                            <option value="Proses Penimbangan" ${o.status === 'Proses Penimbangan' ? 'selected' : ''}>Proses Penimbangan</option>
+                            <option value="Sedang Dicuci" ${o.status === 'Sedang Dicuci' ? 'selected' : ''}>Sedang Dicuci</option>
+                            <option value="Selesai Cuci" ${o.status === 'Selesai Cuci' ? 'selected' : ''}>Selesai Cuci</option>
+                            <option value="Pengantaran" ${o.status === 'Pengantaran' ? 'selected' : ''}>Pengantaran</option>
+                            <option value="Selesai" ${o.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openWeighModal(id, currentQty) {
+            document.getElementById('weighOrderId').value = id;
+            document.getElementById('realWeighInput').value = currentQty;
+            document.getElementById('weighModal').classList.remove('hidden');
+        }
+
+        function closeWeighModal() {
+            document.getElementById('weighModal').classList.add('hidden');
+        }
+
+        function submitWeighing() {
+            const id = document.getElementById('weighOrderId').value;
+            const newQty = parseFloat(document.getElementById('realWeighInput').value);
+
+            const order = orders.find(o => o.id === id);
+            if(order && newQty > 0) {
+                order.quantity = newQty;
+                order.totalPrice = order.unitPrice * newQty;
+                order.status = 'Sedang Dicuci';
+                saveDataToStorage();
+                closeWeighModal();
+                showToast(`Timbangan ${id} diperbarui & dimasukkan ke pencucian!`, 'success');
+            }
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            const order = orders.find(o => o.id === id);
+            if(order) {
+                order.status = newStatus;
+                saveDataToStorage();
+                showToast(`Status ${id} diubah menjadi ${newStatus}`, 'info');
+            }
+        }
+
+        function renderAdminServices() {
+            const tbody = document.getElementById('adminServiceTableBody');
+            tbody.innerHTML = services.map(s => `
+                <tr class="hover:bg-softblue-50/50 transition">
+                    <td class="p-2.5 font-semibold text-slate-800">${s.name}</td>
+                    <td class="p-2.5 font-bold text-softblue-700">Rp ${s.price.toLocaleString('id-ID')}</td>
+                    <td class="p-2.5 text-slate-600">${s.unit}</td>
+                    <td class="p-2.5 text-slate-600">${s.duration} Jam</td>
+                    <td class="p-2.5 text-center">
+                        <button onclick="deleteService('${s.id}')" class="text-red-500 hover:text-red-700 text-xs px-2 py-1 rounded">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function saveService(e) {
+            e.preventDefault();
+            const name = document.getElementById('serviceName').value;
+            const price = parseFloat(document.getElementById('servicePrice').value);
+            const unit = document.getElementById('serviceUnit').value;
+            const duration = parseInt(document.getElementById('serviceDuration').value);
+
+            const newService = {
+                id: 'S' + (services.length + 1),
+                name,
+                price,
+                unit,
+                duration
+            };
+
+            services.push(newService);
+            saveDataToStorage();
+            renderServiceDropdown();
+            renderCustomerServicesList();
+            document.getElementById('serviceForm').reset();
+            showToast('Layanan baru berhasil ditambahkan', 'success');
+        }
+
+        function deleteService(id) {
+            if(confirm('Hapus layanan ini?')) {
+                services = services.filter(s => s.id !== id);
+                saveDataToStorage();
+                renderServiceDropdown();
+                renderCustomerServicesList();
+                showToast('Layanan berhasil dihapus', 'info');
+            }
+        }
+
+        function renderReports() {
+            const totalRev = orders.reduce((sum, o) => sum + o.totalPrice, 0);
+            const totalCount = orders.length;
+            const completedCount = orders.filter(o => o.status === 'Selesai').length;
+            const pendingCount = totalCount - completedCount;
+
+            document.getElementById('reportTotalRevenue').innerText = `Rp ${totalRev.toLocaleString('id-ID')}`;
+            document.getElementById('reportTotalCount').innerText = `${totalCount} Pesanan`;
+            document.getElementById('reportCompletedCount').innerText = `${completedCount} Selesai`;
+            document.getElementById('reportPendingCount').innerText = `${pendingCount} Proses`;
+
+            // Prepare Print View details
+            document.getElementById('printReportDetails').innerHTML = `
+                <p><strong>Tanggal Cetak:</strong> ${new Date().toLocaleDateString('id-ID')}</p>
+                <p><strong>Total Omset Rekap:</strong> Rp ${totalRev.toLocaleString('id-ID')}</p>
+                <p><strong>Jumlah Transaksi Selesai:</strong> ${completedCount} dari ${totalCount} transaksi</p>
+            `;
+        }
+
+        function renderReportsChart() {
+            const ctx = document.getElementById('reportChart').getContext('2d');
+            
+            const statusCounts = {
+                'Menunggu Pickup': 0,
+                'Proses Penimbangan': 0,
+                'Sedang Dicuci': 0,
+                'Selesai Cuci': 0,
+                'Pengantaran': 0,
+                'Selesai': 0
+            };
+
+            orders.forEach(o => {
+                if(statusCounts[o.status] !== undefined) statusCounts[o.status]++;
+            });
+
+            if(reportChartInstance) reportChartInstance.destroy();
+
+            reportChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        label: 'Jumlah Pesanan',
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#f59e0b', '#3b82f6', '#0284c7', '#0369a1', '#8b5cf6', '#10b981'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        function renderOwnerDashboard() {
+            const totalRev = orders.reduce((sum, o) => sum + o.totalPrice, 0);
+            const totalWeight = orders.reduce((sum, o) => sum + o.quantity, 0);
+            const uniqueClients = new Set(orders.map(o => o.phone)).size;
+
+            document.getElementById('ownerTotalRevenue').innerText = `Rp ${totalRev.toLocaleString('id-ID')}`;
+            document.getElementById('ownerTotalWeight').innerText = `${totalWeight.toFixed(1)} Kg/Pcs`;
+            document.getElementById('ownerTotalClients').innerText = `${uniqueClients} Orang`;
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'Menunggu Pickup': return 'bg-amber-100 text-amber-800 border border-amber-200';
+                case 'Proses Penimbangan': return 'bg-sky-100 text-sky-800 border border-sky-200';
+                case 'Sedang Dicuci': return 'bg-softblue-100 text-softblue-800 border border-softblue-200';
+                case 'Selesai Cuci': return 'bg-indigo-100 text-indigo-800 border border-indigo-200';
+                case 'Pengantaran': return 'bg-purple-100 text-purple-800 border border-purple-200';
+                case 'Selesai': return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+                default: return 'bg-slate-100 text-slate-800';
+            }
+        }
+    </script>
+</body>
+</html>
